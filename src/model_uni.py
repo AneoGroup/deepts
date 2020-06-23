@@ -10,6 +10,7 @@ import mxnet as mx
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+from gluonts.model.deepar import DeepAREstimator
 from gluonts.trainer import Trainer
 from mxnet import gluon
 
@@ -17,7 +18,8 @@ from utils import get_data
 
 def create_models(name, trainer, **kwargs):
     model_name_dict = {
-        "simple feed forward": SimpleFeedForwardEstimator
+        "simple feed forward": SimpleFeedForwardEstimator,
+        "deep ar": DeepAREstimator
     }
     estimator = model_name_dict[name](trainer=trainer, **kwargs)
     return estimator
@@ -47,7 +49,7 @@ if __name__ == "__main__":
 
     # load dataset
     train_ds, test_ds, metadata = get_data(config)
-    
+
     # define a trainer
     trainer =  Trainer(**config["trainer"])
 
