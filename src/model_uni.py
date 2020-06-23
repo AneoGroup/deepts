@@ -7,26 +7,13 @@ import numpy as np
 import pandas as pd
 
 import mxnet as mx
-from gluonts.dataset.common import ListDataset
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 from mxnet import gluon
 
-
-# make a dataset in correct foramt
-def make_list_dataset(custom_dataset, freq, start_str, prediction_length):
-    start = pd.Timestamp(start_str, freq=freq)  # can be different for each time series
-    # train dataset: cut the last window of length "prediction_length", add "target" and "start" fields
-    train_ds = ListDataset([{'target': x, 'start': start}
-                            for x in custom_dataset[:, :-prediction_length]],
-                        freq=freq)
-    # test dataset: use the whole dataset, add "target" and "start" fields
-    test_ds = ListDataset([{'target': x, 'start': start}
-                        for x in custom_dataset],
-                        freq=freq)
-    return train_ds, test_ds
+from utils import get_data
 
 def create_models(name, trainer, **kwargs):
     model_name_dict = {
@@ -58,16 +45,9 @@ if __name__ == "__main__":
     with open("./configs/test_config.yaml", "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
-    N = 10  # number of time series
-    T = 100  # number of timesteps
-    prediction_length = 24
-    freq = "1H"
-    custom_dataset = np.random.normal(size=(N, T))
-    start_str = "01-01-2019"
-
-    # convert to dataset
-    train_ds, test_ds = make_list_dataset(custom_dataset, config["hyperparams"]["freq"], start_str, config["hyperparams"]["prediction_length"])
-
+    # load dataset
+    train_ds, test_ds, metadata = get_data(config)
+    
     # define a trainer
     trainer =  Trainer(**config["trainer"])
 
