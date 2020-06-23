@@ -1,5 +1,6 @@
 # importing libraries
 import json
+import yaml
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,10 +28,11 @@ def make_list_dataset(custom_dataset, freq, start_str, prediction_length):
                         freq=freq)
     return train_ds, test_ds
 
-
-def create_models( name, **kwargs):
-    model_name_dict = { "simple feed forward" : SimpleFeedForwardEstimator }
-    estimator = model_name_dict[name]( **kwargs )
+def create_models(name, trainer, **kwargs):
+    model_name_dict = {
+        "simple feed forward": SimpleFeedForwardEstimator
+    }
+    estimator = model_name_dict[name](trainer=trainer, **kwargs)
     return estimator
 
 
@@ -52,7 +54,9 @@ def evaluate(predictor, test_ds, num_samples):
 
 
 if __name__ == "__main__":
-    # create a new dataset
+    # open config
+    with open("./configs/test_config.yaml", "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
 
     N = 10  # number of time series
     T = 100  # number of timesteps
@@ -61,19 +65,13 @@ if __name__ == "__main__":
     custom_dataset = np.random.normal(size=(N, T))
     start_str = "01-01-2019"
 
-    train_ds, test_ds = make_list_dataset(custom_dataset, freq, start_str, prediction_length)
+    # convert to dataset
+    train_ds, test_ds = make_list_dataset(custom_dataset, config["hyperparams"]["freq"], start_str, config["hyperparams"]["prediction_length"])
 
-    # defining a trainer
-    trainer =  Trainer(ctx="cpu",
-                            epochs=5,
-                            learning_rate=1e-3,
-                            num_batches_per_epoch=100
-                        )
-
-    # defining the parameters for the model
-    model_args = {"prediction_length":prediction_length, "context_length":100, "freq": freq, "trainer": trainer}
+    # define a trainer
+    trainer =  Trainer(**config["trainer"])
 
     # test the model
-    estm = create_models("simple feed forward", **model_args)
+    estm = create_models("simple feed forward", trainer, **config["hyperparams"])
     prdc = train_model(estm, train_ds)
     evaluate(prdc, test_ds, 100)

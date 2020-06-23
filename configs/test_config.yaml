@@ -1,0 +1,8 @@
+# Model type
+model: {"model_name": "simple feed forward"}
+
+trainer: {"ctx": "cpu", "epochs": 5, "learning_rate": 0.001}
+
+hyperparams: {"prediction_length": 25, "context_length": 100, "freq": "H"}
+
+data: "generate"
