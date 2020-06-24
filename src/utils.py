@@ -25,8 +25,8 @@ def load_te_data():
 
 def load_random_data(config):
     # Define number and length of time series
-    N = 10
-    T = 100
+    N = 100
+    T = 1000
 
     # Define starting point
     start = "01-01-2000"
@@ -42,6 +42,12 @@ def load_random_data(config):
     return train_ds, test_ds, {"freq": freq, "start": start, "prediction_length": prediction_length}
 
 
+def convert_file_to_list(data_file, freq):
+    list_data = list(iter(data_file))
+    list_data = ListDataset(list_data, freq = freq)
+    return list_data
+
+
 def get_data(config):
     if config["data"] == "tronderenergi":
         return load_te_data()
@@ -49,6 +55,9 @@ def get_data(config):
         return load_random_data(config)
     elif config["data"] in list(dataset_recipes.keys()):
         dataset = get_dataset(config["data"], regenerate=False)
-        return dataset.train, dataset.test, dataset.metadata
+        # convert the dataset files to dataset lists
+        train_ds = convert_file_to_list(dataset.train, dataset.metadata.freq)
+        test_ds  = convert_file_to_list(dataset.test, dataset.metadata.freq)
+        return train_ds, test_ds, dataset.metadata
     else:
         raise ValueError(f"Invalid dataset name: {config['data']}")

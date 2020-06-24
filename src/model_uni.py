@@ -54,6 +54,6 @@ if __name__ == "__main__":
     trainer =  Trainer(**config["trainer"])
 
     # test the model
-    estm = create_models("simple feed forward", trainer, **config["hyperparams"])
+    estm = create_models(config["model"], trainer, **config["hyperparams"])
     prdc = train_model(estm, train_ds)
     evaluate(prdc, test_ds, 100)
