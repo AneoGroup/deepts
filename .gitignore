@@ -1,2 +1,4 @@
 # Ignore the virtual environment
 venv
+# Don't bother pushing the test-config
+configs/test_config.yaml
