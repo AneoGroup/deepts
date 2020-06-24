@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import yaml
 
 from gluonts.dataset.repository.datasets import get_dataset, dataset_recipes
 from gluonts.dataset.common import ListDataset
@@ -19,8 +20,24 @@ def make_list_dataset(custom_dataset, freq, start_str, prediction_length):
     return train_ds, test_ds
 
 
-def load_te_data():
-    raise NotImplementedError
+def load_te_data(config):
+    # read file
+    df = pd.read_excel(config['datapath'], index_col=[0], parse_dates = True)
+    df.index = df.index.tz_localize(None)
+    freq = config['hyperparams']['freq']
+    prediction_length = config['hyperparams']['prediction_length']
+    # extract the comlumn 
+    prod_df = df[df.columns[-1]].dropna()
+    # convert to numpy array
+    prod_col = np.expand_dims( prod_df.to_numpy(), axis = 0 )
+    print(" \n\n(inside load_te_data() this is what we are looking for : ")
+    # print(sum(prod_col[0,36000 : 45000]) )
+    prod_col = np.around(prod_col, decimals=2)
+    # send to  make list dataset func
+    train_ds, test_ds = make_list_dataset(prod_col, freq, prod_df.index[0], prediction_length)
+    print(prod_col.shape)
+    # return train test meta data
+    return train_ds, test_ds, {"freq": freq, "start": prod_df.index[0], "prediction_length": prediction_length}
 
 
 def load_random_data(config):
@@ -50,7 +67,7 @@ def convert_file_to_list(data_file, freq):
 
 def get_data(config):
     if config["data"] == "tronderenergi":
-        return load_te_data()
+        return load_te_data(config)
     elif config["data"] == "generate":
         return load_random_data(config)
     elif config["data"] in list(dataset_recipes.keys()):

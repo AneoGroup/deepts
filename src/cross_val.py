@@ -27,12 +27,14 @@ def get_longest_series(list_test):
             max = len(list_test.list_data[i]['target'])
             idx = i
     return_list.list_data = [list_test.list_data[i]]
+    print("\n\n this is it")
+    print(return_list.list_data[0])
     return return_list
 
 def nested_cross_validation(list_test, metadata):
     # values for the sliding windo
-    block_length = 300
-    prediction_length = 30
+    block_length = config['hyperparams']['context_length']
+    prediction_length = config['hyperparams']['prediction_length']
 
     # get the longest timeseries
     max_len_timeseries = get_longest_series(list_test)
@@ -42,7 +44,7 @@ def nested_cross_validation(list_test, metadata):
 
     # for loop through all the test set
     for i in range(0, len(target_test.list_data[0]['target'])-prediction_length, block_length):
-
+        config['hyperparams']['context_length'] += i
         # make the train part
         train_part = deepcopy(target_test)
         train_part.list_data[0]['target'] = train_part.list_data[0]['target'][0 : i + block_length]
@@ -73,4 +75,4 @@ if __name__ == "__main__":
     # get the dataset
     train_ds, test_ds, metadata = get_data(config)
     # apply nested cross validation
-    nested_cross_validation(test_ds, metadata)    
+    nested_cross_validation(test_ds, metadata)
