@@ -53,4 +53,8 @@ def write_results(forecasts: SampleForecast,
         header=True if fold_num == 1 else False
     )
     metrics_path = "metrics"
-    metrics.to_csv(f"./results/{metrics_path}.csv")
+    metrics.to_csv(
+        f"./results/{metrics_path}.csv",
+        mode="w" if fold_num == 1 else "a",
+        header=True if fold_num == 1 else False
+    )
