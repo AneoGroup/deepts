@@ -1,80 +1,56 @@
-import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
-import yaml
 
-from gluonts.dataset.repository.datasets import get_dataset, dataset_recipes
-from gluonts.dataset.common import ListDataset
+from gluonts.model.forecast import SampleForecast
 
 
-# make a dataset in correct foramt
-def make_list_dataset(custom_dataset, freq, start_str, prediction_length):
-    start = pd.Timestamp(start_str, freq=freq)  # can be different for each time series
-    # train dataset: cut the last window of length "prediction_length", add "target" and "start" fields
-    train_ds = ListDataset([{'target': x, 'start': start}
-                            for x in custom_dataset[:, :-prediction_length]],
-                        freq=freq)
-    # test dataset: use the whole dataset, add "target" and "start" fields
-    test_ds = ListDataset([{'target': x, 'start': start}
-                        for x in custom_dataset],
-                        freq=freq)
-    return train_ds, test_ds
+def plot_forecast(targets: pd.DataFrame, forecast: any, plot_name: str) -> None:
+    plot_length = len(targets)
+    prediction_intervals = (50.0, 90.0)
+    legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 7))
+    targets[-plot_length:].plot(ax=ax)
+    forecast.plot(prediction_intervals=prediction_intervals, color='g')
+    plt.grid(which="both")
+    plt.legend(legend, loc="upper left")
+    plt.savefig(f"./plots/{plot_name}.png")
 
 
-def load_te_data(config):
-    # read file
-    df = pd.read_excel(config['datapath'], index_col=[0], parse_dates = True)
-    df.index = df.index.tz_localize(None)
-    freq = config['hyperparams']['freq']
-    prediction_length = config['hyperparams']['prediction_length']
-    # extract the comlumn 
-    prod_df = df[df.columns[-1]].dropna()
-    # convert to numpy array
-    prod_col = np.expand_dims( prod_df.to_numpy(), axis = 0 )
-    print(" \n\n(inside load_te_data() this is what we are looking for : ")
-    # print(sum(prod_col[0,36000 : 45000]) )
-    prod_col = np.around(prod_col, decimals=2)
-    # send to  make list dataset func
-    train_ds, test_ds = make_list_dataset(prod_col, freq, prod_df.index[0], prediction_length)
-    print(prod_col.shape)
-    # return train test meta data
-    return train_ds, test_ds, {"freq": freq, "start": prod_df.index[0], "prediction_length": prediction_length}
+def write_results(forecasts: SampleForecast,
+                  targets: pd.DataFrame,
+                  metrics: pd.DataFrame,
+                  context_length: int,
+                  fold_num: int) -> None:
+    # Remove the input to the model.
+    targets = targets.iloc[context_length:]
+    targets = targets.rename(columns={0: "target"})
 
+    # Create a dataframe containing the forecasts.
+    forecasts_df = pd.DataFrame(
+        forecasts.samples.T,
+        columns=[f"sample{i}" for i in range(100)],
+        index=targets.index
+    )
 
-def load_random_data(config):
-    # Define number and length of time series
-    N = 100
-    T = 1000
+    # Join the targets and forecasts
+    df = pd.concat([targets, forecasts_df], axis=1)
 
-    # Define starting point
-    start = "01-01-2000"
+    # Create a multiindex, with fold number and timestamp
+    df = pd.DataFrame(
+        data=df.values,
+        index=pd.MultiIndex.from_product(
+            [[fold_num], targets.index], names=["fold_num", "timestamp"]
+        ),
+        columns=[*targets.columns, *forecasts_df.columns]
+    )
 
-    # Generate random data
-    random_data = np.random.normal(size=(N, T))
-
-    # Convert to ListDataset
-    freq = config["hyperparams"]["freq"]
-    prediction_length = config["hyperparams"]["prediction_length"]
-
-    train_ds, test_ds = make_list_dataset(random_data, freq, start, prediction_length)
-    return train_ds, test_ds, {"freq": freq, "start": start, "prediction_length": prediction_length}
-
-
-def convert_file_to_list(data_file, freq):
-    list_data = list(iter(data_file))
-    list_data = ListDataset(list_data, freq = freq)
-    return list_data
-
-
-def get_data(config):
-    if config["data"] == "tronderenergi":
-        return load_te_data(config)
-    elif config["data"] == "generate":
-        return load_random_data(config)
-    elif config["data"] in list(dataset_recipes.keys()):
-        dataset = get_dataset(config["data"], regenerate=False)
-        # convert the dataset files to dataset lists
-        train_ds = convert_file_to_list(dataset.train, dataset.metadata.freq)
-        test_ds  = convert_file_to_list(dataset.test, dataset.metadata.freq)
-        return train_ds, test_ds, dataset.metadata
-    else:
-        raise ValueError(f"Invalid dataset name: {config['data']}")
+    # Write to file
+    forecast_path = "forecasts"
+    df.to_csv(
+        f"./results/{forecast_path}.csv",
+        mode="w" if fold_num == 1 else "a",
+        header=True if fold_num == 1 else False
+    )
+    metrics_path = "metrics"
+    metrics.to_csv(f"./results/{metrics_path}.csv")
