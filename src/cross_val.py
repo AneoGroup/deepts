@@ -7,18 +7,17 @@ from model_utils import create_model, evaluate_model
 from utils import plot_forecast, write_results
 
 
-def get_longest_series(data: ListDataset) -> ListDataset:
+def get_longest_series(dataset: ListDataset) -> ListDataset:
     max_index = 0
     max_len = 0
-    return_list = deepcopy(data)
 
-    for i in range(len(data.list_data)):
-        if len(data.list_data[i]['target']) > max_len:
-            max_len = len(data.list_data[i]['target'])
+    for i in range(len(dataset.list_data)):
+        if len(dataset.list_data[i]['target']) > max_len:
+            max_len = len(dataset.list_data[i]['target'])
             max_index = i
 
-    return_list.list_data = [data.list_data[max_index]]
-    return return_list
+    dataset.list_data = [dataset.list_data[max_index]]
+    return dataset
 
 
 def nested_cross_validation(data: ListDataset,
