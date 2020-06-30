@@ -4,8 +4,8 @@ import pandas as pd
 from gluonts.model.forecast import SampleForecast
 
 
-def plot_forecast(targets: pd.DataFrame, forecast: any, plot_name: str) -> None:
-    plot_length = len(targets)
+def plot_forecast(targets: pd.DataFrame, forecast: SampleForecast, plot_name: str) -> None:
+    plot_length = len(forecast.samples) * 2
     prediction_intervals = (50.0, 90.0)
     legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
 
@@ -15,7 +15,7 @@ def plot_forecast(targets: pd.DataFrame, forecast: any, plot_name: str) -> None:
     plt.grid(which="both")
     plt.legend(legend, loc="upper left")
     plt.savefig(f"./plots/{plot_name}.png")
-
+    plt.clf()
 
 def write_results(forecasts: SampleForecast,
                   targets: pd.DataFrame,

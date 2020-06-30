@@ -1,8 +1,10 @@
 # Model type
-model: "simple feed forward"
+model_name: "simple_feed_forward"
 
 trainer: {"ctx": "cpu", "epochs": 1, "learning_rate": 0.001}
 
-hyperparams: {"prediction_length": 25, "context_length": 100, "freq": "H"}
+hyperparams: {"prediction_length": 100, "context_length": 100, "freq": "1B"}
 
-data: "generate"
+dataset_name: "exchange_rate"
+
+dataset_path: none
