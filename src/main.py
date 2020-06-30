@@ -1,9 +1,8 @@
 import yaml
 
 from gluonts.trainer import Trainer
-
-from cross_val import nested_cross_validation
 from dataloader import DataLoader
+from cross_val import nested_cross_validation, single_experiment
 from model_utils import create_model, evaluate_model
 
 
@@ -14,13 +13,23 @@ def run_experiment(config):
         config["hyperparams"]["freq"],
         config["hyperparams"]["prediction_length"]
     )
+    if config['cross_val']:
+        nested_cross_validation(
+            dataloader.test_data,
+            config["model_name"],
+            config["hyperparams"],
+            config["trainer"]
+        )
 
-    nested_cross_validation(
-        dataloader.test_data,
-        config["model_name"],
-        config["hyperparams"],
-        config["trainer"]
-    )
+    else:
+        single_experiment(
+            dataloader.train_data,
+            dataloader.test_data,
+            config['model_name'],
+            config['hyperparams'],
+            config['trainer']
+        )
+    
 
 
 if __name__ == "__main__":

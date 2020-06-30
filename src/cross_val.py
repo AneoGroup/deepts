@@ -33,15 +33,21 @@ def nested_cross_validation(data: ListDataset,
     # timeseries in the dataset.
     max_len_timeseries = get_longest_series(data)
 
-    # Create a deep copies of the timeseries that we can manipulate.
-    train_data = deepcopy(max_len_timeseries)
-    test_data = deepcopy(max_len_timeseries)
-
     # Do nested cross validation.
-    for j, i in enumerate(range(context_length, len(train_data.list_data[0]['target']) - prediction_length, context_length)):
+    for j, i in enumerate(range(context_length, len(max_len_timeseries.list_data[0]['target']) - prediction_length, context_length)):
         # Slice data
-        train_data.list_data[0]['target'] = max_len_timeseries.list_data[0]['target'][:i]
-        test_data.list_data[0]['target'] = max_len_timeseries.list_data[0]['target'][:i + prediction_length]
+        # train_data.list_data[0]['target'] = data.list_data[0]['target'][:i]
+        # test_data.list_data[0]['target'] = data.list_data[0]['target'][:i + prediction_length]
+        train_data = deepcopy(data)
+        test_data = deepcopy(data)
+
+        for z in range(0, len(train_data.list_data)):
+            if len(train_data.list_data[z]['target']) < (prediction_length + i):
+                train_data.list_data[z]['target'] = train_data.list_data[z]['target'][0 : -prediction_length]
+            else:
+                train_data.list_data[z]['target'] = train_data.list_data[z]['target'][0 : i]
+                test_data.list_data[z]['target'] = test_data.list_data[z]['target'][0 : prediction_length + i]
+
 
         # Define a trainer
         trainer = Trainer(**trainer_args)
@@ -58,5 +64,36 @@ def nested_cross_validation(data: ListDataset,
         forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
 
         # Save results
-        write_results(forecasts, targets, metrics, i, j + 1)
+        write_results(forecasts, targets, metrics, prediction_length, j + 1)
         plot_forecast(targets, forecasts, f"fold{j + 1}")
+
+
+def single_experiment (train_data: ListDataset,
+                        test_data: ListDataset,
+                        model_name: str,
+                        hyperparams: dict,
+                        trainer_args: dict,
+                        ) -> None: 
+    # Retreive context length and prediction length 
+    context_length = hyperparams["context_length"]
+    prediction_length = hyperparams["prediction_length"]
+
+    # Define a trainer
+    trainer = Trainer(**trainer_args)
+
+    # Create, train and test the model
+    estimator = create_model(
+        model_name,
+        hyperparams["freq"],
+        prediction_length,
+        context_length,
+        trainer
+    )
+    predictor = estimator.train(train_data)
+    forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
+
+    # Save results
+
+    j = 2300
+    write_results(forecasts, targets, metrics, prediction_length, 1)
+    plot_forecast(targets, forecasts, f"fold{j + 1}")
