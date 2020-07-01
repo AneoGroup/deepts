@@ -4,10 +4,28 @@ from gluonts.dataset.common import ListDataset
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
+from gluonts.model.deep_factor import DeepFactorEstimator
+from gluonts.model.deepstate import DeepStateEstimator
 from gluonts.model.estimator import Estimator
 from gluonts.model.forecast import SampleForecast
+from gluonts.model.n_beats import NBEATSEstimator
+from gluonts.model.seq2seq import MQCNNEstimator, MQRNNEstimator, RNN2QRForecaster
 from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+from gluonts.model.wavenet import WaveNetEstimator
 from gluonts.trainer import Trainer
+
+
+model_dict = {
+    "deep_ar": DeepAREstimator,
+    "deep_factor": DeepFactorEstimator,
+    "deepstate": DeepStateEstimator,
+    "n_beats": NBEATSEstimator,
+    "mqcnn": MQCNNEstimator,
+    "mqrnn": MQRNNEstimator,
+    "rnn2qr": RNN2QRForecaster,
+    "simple_feed_forward": SimpleFeedForwardEstimator,
+    "wavenet": WaveNetEstimator,
+}
 
 
 def create_model(name: str,
@@ -16,10 +34,6 @@ def create_model(name: str,
                  context_length: int,
                  trainer: Trainer,
                  **kwargs) -> Estimator:
-    model_dict = {
-        "simple_feed_forward": SimpleFeedForwardEstimator,
-        "deep_ar": DeepAREstimator
-    }
     estimator = model_dict[name](
         trainer=trainer,
         freq=freq,
