@@ -20,7 +20,8 @@ def get_longest_series(dataset: ListDataset) -> ListDataset:
     return dataset
 
 
-def nested_cross_validation(data: ListDataset,
+def nested_cross_validation(exp_name: str,
+                            data: ListDataset,
                             model_name: str,
                             hyperparams: dict,
                             trainer_args: dict,
@@ -64,11 +65,12 @@ def nested_cross_validation(data: ListDataset,
         forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
 
         # Save results
-        write_results(forecasts, targets, metrics, prediction_length, j + 1)
-        plot_forecast(targets, forecasts, f"fold{j + 1}")
+        write_results(forecasts, targets, metrics, prediction_length, exp_name, j + 1)
+        plot_forecast(targets, forecasts, f"{exp_name}/fold{j + 1}")
 
 
-def single_experiment (train_data: ListDataset,
+def single_experiment (exp_name: str,
+                        train_data: ListDataset,
                         test_data: ListDataset,
                         model_name: str,
                         hyperparams: dict,
@@ -93,7 +95,5 @@ def single_experiment (train_data: ListDataset,
     forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
 
     # Save results
-
-    j = 2300
-    write_results(forecasts, targets, metrics, prediction_length, 1)
-    plot_forecast(targets, forecasts, f"fold{j + 1}")
+    write_results(forecasts, targets, metrics, prediction_length, exp_name)
+    plot_forecast(targets, forecasts, f"{exp_name}/plot")

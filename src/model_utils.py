@@ -45,4 +45,4 @@ def evaluate_model(predictor: Estimator,
     evaluator = Evaluator(quantiles=[0.1, 0.5, 0.9])
     _, item_metrics = evaluator(iter(ts), iter(forecasts))
 
-    return forecasts[0], ts[0], item_metrics
+    return forecasts, ts, item_metrics
