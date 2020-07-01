@@ -5,7 +5,7 @@ from gluonts.model.forecast import SampleForecast
 
 
 def plot_forecast(targets: pd.DataFrame, forecast: SampleForecast, plot_name: str) -> None:
-    plot_length = len(forecast.samples) * 2
+    plot_length = forecast.samples.shape[1] * 2
     prediction_intervals = (50.0, 90.0)
     legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
 
@@ -14,22 +14,22 @@ def plot_forecast(targets: pd.DataFrame, forecast: SampleForecast, plot_name: st
     forecast.plot(prediction_intervals=prediction_intervals, color='g')
     plt.grid(which="both")
     plt.legend(legend, loc="upper left")
-    plt.savefig(f"./plots/{plot_name}.png")
-    plt.clf()
+    plt.savefig(f"./images/{plot_name}.png")
+    plt.close()
 
 def write_results(forecasts: SampleForecast,
                   targets: pd.DataFrame,
                   metrics: pd.DataFrame,
-                  context_length: int,
+                  prediction_length: int,
                   fold_num: int) -> None:
     # Remove the input to the model.
-    targets = targets.iloc[context_length:]
+    targets = targets.iloc[-prediction_length:]
     targets = targets.rename(columns={0: "target"})
 
     # Create a dataframe containing the forecasts.
     forecasts_df = pd.DataFrame(
         forecasts.samples.T,
-        columns=[f"sample{i}" for i in range(100)],
+        columns=[f"sample{i}" for i in range(forecasts.samples.shape[0])],
         index=targets.index
     )
 
