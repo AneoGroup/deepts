@@ -29,16 +29,10 @@ model_dict = {
 
 
 def create_model(name: str,
-                 freq: str,
-                 prediction_length: int,
-                 context_length: int,
                  trainer: Trainer,
                  **kwargs) -> Estimator:
     estimator = model_dict[name](
         trainer=trainer,
-        freq=freq,
-        prediction_length=prediction_length,
-        context_length=context_length,
         **kwargs
     )
     return estimator

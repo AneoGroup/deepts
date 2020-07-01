@@ -86,10 +86,8 @@ def single_experiment (exp_name: str,
     # Create, train and test the model
     estimator = create_model(
         model_name,
-        hyperparams["freq"],
-        prediction_length,
-        context_length,
-        trainer
+        trainer,
+        **hyperparams
     )
     predictor = estimator.train(train_data)
     forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
