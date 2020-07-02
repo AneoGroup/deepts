@@ -41,19 +41,20 @@ def run_experiment(exp_name, config):
         )
 
 
-def prepare_folders(exp_name):
+def prepare_folders(config_path, exp_name):
     if os.path.exists(f'results/{exp_name}') or os.path.exists(f'images/{exp_name}'):
         answer = input("experiment is already exists. Want overwrite? [y/n] ")
         if answer is 'n':
             exit(0)
-
-    else:
+    if not os.path.exists(f'results/{exp_name}'):
         # make results
         os.mkdir('results/' + exp_name)
+    if not os.path.exists(f'images/{exp_name}'):
         # make images
         os.mkdir('images/' + exp_name)
-        # copy config
-        shutil.copyfile(config_path,  './configs/' + exp_name + '.yaml')
+    
+    # copy config
+    shutil.copyfile(config_path,  './configs/' + exp_name + '.yaml')
 
 
 
@@ -64,6 +65,6 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     exp_name = config['model_name'] + '__' + config['dataset_name'] + '__' + str(config['exp_num'])
-    prepare_folders(exp_name)
+    prepare_folders(config_path, exp_name)
 
     run_experiment(exp_name, config)
