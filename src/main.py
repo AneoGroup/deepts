@@ -41,7 +41,6 @@ def run_experiment(exp_name: str, config: dict):
             config["hyperparams"],
             config["trainer"]
         )
-
     else:
         # Run a single experiment
         # Define a trainer
@@ -61,19 +60,6 @@ def run_experiment(exp_name: str, config: dict):
         plot_forecast(targets, forecasts, f"{exp_name}/plot")
 
 
-def prepare_folders(exp_name):
-    if os.path.exists(f'results/{exp_name}') or os.path.exists(f'images/{exp_name}'):
-        answer = input("The files for the experiment already exists. Do you want to overwrite? [y/n] ")
-        if answer is 'n':
-            exit(0)
-    if not os.path.exists(f'results/{exp_name}'):
-        # make results
-        os.mkdir('results/' + exp_name)
-    if not os.path.exists(f'images/{exp_name}'):
-        # make images
-        os.mkdir('images/' + exp_name)
-
-
 if __name__ == "__main__":
     args = vars(parser.parse_args())
     
@@ -84,6 +70,4 @@ if __name__ == "__main__":
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     exp_name = config['model_name'] + '__' + config['dataset_name'] + '__' + str(config['exp_num'])
-    prepare_folders(exp_name)
-
     run_experiment(exp_name, config)

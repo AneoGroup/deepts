@@ -1,6 +1,6 @@
 import os
-import yaml
 import subprocess
+import yaml
 
 
 # Open the config file for the experiment and load parameters
@@ -20,7 +20,7 @@ for model in models:
         exp_number = experiment_id
         for epoch in epochs:
             for lr in learning_rates:
-                # create a config with the current parameters
+                # Areate a config with the current parameters
                 config_dict = {
                     "model_name": model,
                     "dataset_name": dataset,
@@ -39,19 +39,29 @@ for model in models:
                 }
 
                 for i in range(num_repeats):
-                    # save the config of this experiment
+                    # Save the config of this experiment
                     repetition_id = f"{exp_number}__{i}"
                     config_dict["exp_num"] = repetition_id
-                    experiment_path = f"./configs/{model}__{dataset}__{repetition_id}.yaml"
+                    experiment_name = f"{model}__{dataset}__{repetition_id}.yaml"
+                    config_path = f"./configs/{experiment_name}.yaml"
 
-                    if os.path.exists(experiment_path):
-                        raise ValueError("Experiment config already exists ({experiment_path})")
-                    else:
-                        with open(experiment_path, "w") as f:
+                    # Ask before overwriting old experiments
+                    if os.path.exists(config_path):
+                        overwrite = input(f"A config file with the name {experiment_name} already exists. "
+                                          "Do you want to overwrite? [y/n] ")
+                        if overwrite == "n":
+                            exit(0)
+
+                    if not os.path.exists(f'results/{experiment_name}'):
+                        os.mkdir('results/' + experiment_name)
+                    if not os.path.exists(f'images/{experiment_name}'):
+                        os.mkdir('images/' + experiment_name)
+
+                    with open(config_path, "w") as f:
                             yaml.dump(config_dict, f)
                     
-                    # run experiment
+                    # Run experiment
                     subprocess.run(["python", "src/main.py",
-                                    "--config", experiment_path])
+                                    "--config", config_path])
                 
                 exp_number += 1
