@@ -3,6 +3,9 @@ import os
 import shutil
 
 from gluonts.trainer import Trainer
+import mxnet as mx
+import numpy as np
+
 from dataloader import DataLoader
 from cross_val import nested_cross_validation, single_experiment
 from model_utils import create_model, evaluate_model
@@ -59,6 +62,9 @@ def prepare_folders(config_path, exp_name):
 
 
 if __name__ == "__main__":
+    np.random.seed(0)
+    mx.random.seed(0)
+
     config_path = "./configs/config.yaml"
 
     with open(config_path, "r") as f:

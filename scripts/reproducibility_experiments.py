@@ -1,20 +1,16 @@
 import yaml
 import subprocess
-import mxnet as mx
-import numpy as np
 
-mx.random.seed(0)
-np.random.seed(0)
 
 # basically same as  run_eperiment but loop over the same experiment more than one, learning decay is not changed also.
 model_lists = ["deep_ar"]
 
 dataset_list = ['electricity']
 
-epochs_list =  [20]
+epochs_list =  [5]
 lr_list = [0.001]
 # number of experiment repetition
-exp_repeat = 100
+exp_repeat = 69
 
 config_path = "./configs/config.yaml"
  
