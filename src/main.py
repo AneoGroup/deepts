@@ -59,7 +59,7 @@ def prepare_folders(config_path, exp_name):
 
 
 if __name__ == "__main__":
-    config_path = "./configs/test_config.yaml"
+    config_path = "./configs/config.yaml"
 
     with open(config_path, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)

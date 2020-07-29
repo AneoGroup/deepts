@@ -9,7 +9,7 @@ epochs_list =  [1]
 lr_list = [0.00001]
 lr_decay_list = [0.1]
 
-config_path = "./configs/test_config.yaml"
+config_path = "./configs/config.yaml"
 
 
 # first loop through models

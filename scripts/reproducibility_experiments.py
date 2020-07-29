@@ -16,7 +16,7 @@ lr_list = [0.001]
 # number of experiment repetition
 exp_repeat = 100
 
-config_path = "./configs/test_config.yaml"
+config_path = "./configs/config.yaml"
  
 
 # first loop through models

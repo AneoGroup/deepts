@@ -1,0 +1,13 @@
+cross_val: false
+dataset_name: electricity
+dataset_path: null
+exp_num: '1__9'
+hyperparams:
+  context_length: null
+  freq: null
+  prediction_length: null
+model_name: deep_ar
+trainer:
+  ctx: gpu
+  epochs: 20
+  learning_rate: 0.001
