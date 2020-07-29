@@ -1,13 +1,11 @@
-cross_val: false
-dataset_name: electricity
-dataset_path: null
-exp_num: '1__9'
-hyperparams:
-  context_length: null
-  freq: null
-  prediction_length: null
-model_name: deep_ar
-trainer:
-  ctx: gpu
-  epochs: 20
-  learning_rate: 0.001
+# The ID used to tag files created during the experiment
+experiment_id: 1
+
+# Lists of parameters to use when running an experiment
+models: [deep_factor]
+datasets: [electricity]
+epochs: [5]
+learning_rates: [0.001]
+
+# Number of times to repeat every combination of parameters
+num_repeats: 1
