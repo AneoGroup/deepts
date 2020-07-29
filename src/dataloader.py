@@ -24,8 +24,6 @@ class DataLoader:
             self.freq = dataset.metadata.freq
             self.prediction_length = dataset.metadata.prediction_length
             self.convert_to_ListDataset(dataset)
-        elif self.dataset_name == "tronderenergi":
-            self.dataset = self.load_data_from_file(self.dataset_path)
         elif self.dataset_name == "generate":
             self.dataset = self.generate_data()
         else:
@@ -35,9 +33,6 @@ class DataLoader:
         self.train_data = ListDataset(list(iter(dataset.train)), freq=self.freq)
         self.test_data = ListDataset(list(iter(dataset.test)), freq=self.freq)
         return self.train_data, self.test_data
-
-    def load_data_from_file(self, file_path: str) -> (ListDataset, ListDataset):
-        raise NotImplementedError
 
     def generate_data(self) -> (ListDataset, ListDataset):
         N = 100

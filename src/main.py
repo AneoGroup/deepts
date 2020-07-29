@@ -1,15 +1,16 @@
 import argparse
-import yaml
 import os
 import shutil
+import yaml
 
 from gluonts.trainer import Trainer
 import mxnet as mx
 import numpy as np
 
+from cross_val import nested_cross_validation
 from dataloader import DataLoader
-from cross_val import nested_cross_validation, single_experiment
 from model_utils import create_model, evaluate_model
+from result_utils import plot_forecast, write_results
 
 
 parser = argparse.ArgumentParser()
@@ -19,7 +20,7 @@ parser.add_argument("--config",
                     )
 
 
-def run_experiment(exp_name, config):
+def run_experiment(exp_name: str, config: dict):
     dataloader = DataLoader(
         config["dataset_name"],
         config["dataset_path"],
@@ -42,14 +43,22 @@ def run_experiment(exp_name, config):
         )
 
     else:
-        single_experiment(
-            exp_name,
-            dataloader.train_data,
-            dataloader.test_data,
-            config['model_name'],
-            config['hyperparams'],
-            config['trainer']
+        # Run a single experiment
+        # Define a trainer
+        trainer = Trainer(**config["trainer"])
+
+        # Create, train and test the model
+        estimator = create_model(
+            config["model_name"],
+            trainer,
+            **config["hyperparams"]
         )
+        predictor = estimator.train(dataloader.train_data)
+        forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
+
+        # Save results
+        write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], exp_name)
+        plot_forecast(targets, forecasts, f"{exp_name}/plot")
 
 
 def prepare_folders(exp_name):

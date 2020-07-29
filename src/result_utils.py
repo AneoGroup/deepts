@@ -5,6 +5,7 @@ from gluonts.model.forecast import SampleForecast
 
 
 def plot_forecast(targets: list, forecast: list, path: str) -> None:
+    # Define plot length as prediction_length * 2
     plot_length = forecast[0].samples.shape[1] * 2
     prediction_intervals = (50.0, 90.0)
     legend = ["observations", "median prediction"] + [f"{k}% prediction interval" for k in prediction_intervals][::-1]
@@ -24,14 +25,14 @@ def write_results(forecasts: list,
                   prediction_length: int,
                   path: str,
                   fold_num: int = 1) -> None:
-    # to save the results of all time series in a list
+    # Store all timeseries in a list
     pd_list = []
     for idx in range(len(forecasts)):
-        # Remove the input to the model.
+        # Slice so we only have predictions
         target = targets[idx].iloc[-prediction_length:]
         target = target.rename(columns={0: "target"})
 
-        # Create a dataframe containing the forecasts.
+        # Create a dataframe containing the forecasts
         forecasts_df = pd.DataFrame(
             forecasts[idx].samples.T,
             columns=[f"sample{i}" for i in range(forecasts[idx].samples.shape[0])],
@@ -51,6 +52,7 @@ def write_results(forecasts: list,
         )
         pd_list.append(df)
     
+    # Concatenate the list of timeseries and write to file
     pd.concat(pd_list).to_csv(
         f"./results/{path}/forcasts.csv",
         mode="w" if fold_num == 1 else "a",
