@@ -9,8 +9,10 @@ with open("./configs/config.yaml", "r") as f:
 
 models = experiment_config["models"]
 datasets = experiment_config["datasets"]
+ctx = experiment_config["context"]
 epochs =  experiment_config["epochs"]
 learning_rates = experiment_config["learning_rates"]
+seed = experiment_config["random_seed"]
 num_repeats = experiment_config["num_repeats"]
 experiment_id = experiment_config["experiment_id"]
 
@@ -30,10 +32,11 @@ for model in models:
                         "prediction_length": None
                     },
                     "trainer": {
-                        "ctx": "gpu",
+                        "ctx": ctx,
                         "epochs": epoch,
                         "learning_rate": lr
                     },
+                    "random_seed": seed,
                     "cross_val": False,
                     "dataset_path": None
                 }
@@ -42,7 +45,7 @@ for model in models:
                     # Save the config of this experiment
                     repetition_id = f"{exp_number}__{i}"
                     config_dict["exp_num"] = repetition_id
-                    experiment_name = f"{model}__{dataset}__{repetition_id}.yaml"
+                    experiment_name = f"{model}__{dataset}__{repetition_id}"
                     config_path = f"./configs/{experiment_name}.yaml"
 
                     # Ask before overwriting old experiments

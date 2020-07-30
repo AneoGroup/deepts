@@ -62,12 +62,13 @@ def run_experiment(exp_name: str, config: dict):
 
 if __name__ == "__main__":
     args = vars(parser.parse_args())
-    
-    np.random.seed(0)
-    mx.random.seed(0)
 
     with open(args['config'], "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+
+    if config["random_seed"] is not None:
+        np.random.seed(config["random_seed"])
+        mx.random.seed(config["random_seed"])
 
     exp_name = config['model_name'] + '__' + config['dataset_name'] + '__' + str(config['exp_num'])
     run_experiment(exp_name, config)
