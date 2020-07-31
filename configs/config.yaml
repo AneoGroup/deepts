@@ -1,15 +1,15 @@
 # The ID used to tag files created during the experiment
-experiment_id: 3
+experiment_id: 5
 
 # Lists of parameters to use when running an experiment
 models: [deep_ar]
 datasets: [electricity]
-epochs: [20]
+epochs: [5]
 learning_rates: [0.001]
-context: gpu  # decide if running experiment on cpu or gpu
+context: cpu  # decide if running experiment on cpu or gpu
 
 # Number of times to repeat every combination of parameters
-num_repeats: 10
+num_repetitions: 2
 
-# The random seed. Null means not set
-random_seed: 0
+# Sets the random seed. Use null to not set. Use "increment" when doing repetitions with different random seeds
+random_seed: increment

@@ -13,8 +13,14 @@ ctx = experiment_config["context"]
 epochs =  experiment_config["epochs"]
 learning_rates = experiment_config["learning_rates"]
 seed = experiment_config["random_seed"]
-num_repeats = experiment_config["num_repeats"]
+num_repetitions = experiment_config["num_repetitions"]
 experiment_id = experiment_config["experiment_id"]
+
+# Set increment_seed = True if we want repetitions with different seeds
+increment_seed = False
+if seed == "increment":
+    increment_seed = True
+    seed = 0
 
 # Loop over parameters
 for model in models:
@@ -22,26 +28,27 @@ for model in models:
         exp_number = experiment_id
         for epoch in epochs:
             for lr in learning_rates:
-                # Areate a config with the current parameters
-                config_dict = {
-                    "model_name": model,
-                    "dataset_name": dataset,
-                    "hyperparams": {
-                        "freq": None,
-                        "context_length": None,
-                        "prediction_length": None
-                    },
-                    "trainer": {
-                        "ctx": ctx,
-                        "epochs": epoch,
-                        "learning_rate": lr
-                    },
-                    "random_seed": seed,
-                    "cross_val": False,
-                    "dataset_path": None
-                }
+                for i in range(num_repetitions):
+                    # Create a config with the current parameters
+                    config_dict = {
+                        "model_name": model,
+                        "dataset_name": dataset,
+                        "hyperparams": {
+                            "freq": None,
+                            "context_length": None,
+                            "prediction_length": None,
+                            "scaling": False
+                        },
+                        "trainer": {
+                            "ctx": ctx,
+                            "epochs": epoch,
+                            "learning_rate": lr
+                        },
+                        "random_seed": seed,
+                        "cross_val": False,
+                        "dataset_path": None
+                    }
 
-                for i in range(num_repeats):
                     # Save the config of this experiment
                     repetition_id = f"{exp_number}__{i}"
                     config_dict["exp_num"] = repetition_id
@@ -66,5 +73,8 @@ for model in models:
                     # Run experiment
                     subprocess.run(["python", "src/main.py",
                                     "--config", config_path])
+
+                    if increment_seed:
+                        seed += 1
                 
                 exp_number += 1
