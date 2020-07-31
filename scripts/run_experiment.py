@@ -37,7 +37,6 @@ for model in models:
                             "freq": None,
                             "context_length": None,
                             "prediction_length": None,
-                            "scaling": False
                         },
                         "trainer": {
                             "ctx": ctx,
