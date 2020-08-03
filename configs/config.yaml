@@ -1,4 +1,5 @@
-# The ID used to tag files created during the experiment
+# IDs used to name folders
+computer_id: B
 experiment_id: 5
 
 # Lists of parameters to use when running an experiment

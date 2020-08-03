@@ -20,7 +20,7 @@ parser.add_argument("--config",
                     )
 
 
-def run_experiment(exp_name: str, config: dict):
+def run_experiment(exp_path: str, config: dict):
     dataloader = DataLoader(
         config["dataset_name"],
         config["dataset_path"],
@@ -35,7 +35,7 @@ def run_experiment(exp_name: str, config: dict):
 
     if config['cross_val']:
         nested_cross_validation(
-            exp_name,
+            exp_path,
             dataloader.test_data,
             config["model_name"],
             config["hyperparams"],
@@ -56,8 +56,8 @@ def run_experiment(exp_name: str, config: dict):
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
         # Save results
-        write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], exp_name)
-        plot_forecast(targets, forecasts, f"{exp_name}/plot")
+        write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], exp_path)
+        plot_forecast(targets, forecasts, f"{exp_path}/plot.png")
 
 
 if __name__ == "__main__":
@@ -70,5 +70,5 @@ if __name__ == "__main__":
         np.random.seed(config["random_seed"])
         mx.random.seed(config["random_seed"])
 
-    exp_name = config['model_name'] + '__' + config['dataset_name'] + '__' + str(config['exp_num'])
-    run_experiment(exp_name, config)
+    exp_path = config["path"]
+    run_experiment(exp_path, config)

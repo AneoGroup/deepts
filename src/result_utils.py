@@ -15,7 +15,7 @@ def plot_forecast(targets: list, forecast: list, path: str) -> None:
     forecast[0].plot(prediction_intervals=prediction_intervals, color='g')
     plt.grid(which="both")
     plt.legend(legend, loc="upper left")
-    plt.savefig(f"./images/{path}.png")
+    plt.savefig(path)
     plt.close()
 
 
@@ -54,14 +54,14 @@ def write_results(forecasts: list,
     
     # Concatenate the list of timeseries and write to file
     pd.concat(pd_list).to_csv(
-        f"./results/{path}/forcasts.csv",
+        f"{path}/forecasts.csv",
         mode="w" if fold_num == 1 else "a",
         header=True if fold_num == 1 else False
     )
 
     
     metrics.to_csv(
-        f"./results/{path}/metrics.csv",
+        f"{path}/metrics.csv",
         mode="w" if fold_num == 1 else "a",
         header=True if fold_num == 1 else False
     )

@@ -10,30 +10,27 @@ parser.add_argument("model name",
 parser.add_argument("dataset",
                     type=str,
                     help="The dataset used in the experiment")
-parser.add_argument("experiment number",
-                    type=int,
-                    help="The experiment number")
-
-
-def delete_experiment_in_folder(experiment_prefix, directory):
-    for d in os.listdir(directory):
-        if d.startswith(experiment_prefix):
-            if d.endswith(".yaml"):
-                os.remove(directory + d)
-            else:
-                shutil.rmtree(directory + d)
+parser.add_argument("experiment ID",
+                    type=str,
+                    help="The experiment ID")
 
 
 if __name__ == "__main__":
     args = vars(parser.parse_args())
-    experiment_prefix = f"{args['model name']}__{args['dataset']}__{args['experiment number']}"
+    experiment_path = f"./experiments/{args['model name']}/{args['dataset']}/{args['experiment ID']}"
 
-    answer = input(f"Delete all results, images and configs starting with prefix {experiment_prefix}? [y/n] ")
+    answer = input(f"Delete all files at {experiment_path}? [y/n] ")
 
     if answer is "n":
         exit(0)
 
-    print(f"Deleting all folders and files with prefix {experiment_prefix}...")
-    delete_experiment_in_folder(experiment_prefix, "./results/")
-    delete_experiment_in_folder(experiment_prefix, "./images/")
-    delete_experiment_in_folder(experiment_prefix, "./configs/")
+    print(f"Deleting all folders and files at {experiment_path}...")
+    shutil.rmtree(experiment_path)
+
+    # If the dataset or model folders become empty, remove those aswell
+    if len(os.listdir(f"./experiments/{args['model name']}/{args['dataset']}")) == 0:
+        os.rmdir(f"./experiments/{args['model name']}/{args['dataset']}")
+    
+    if len(os.listdir(f"./experiments/{args['model name']}")) == 0:
+        os.rmdir(f"./experiments/{args['model name']}")
+        
