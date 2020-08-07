@@ -54,14 +54,14 @@ def write_results(forecasts: list,
     
     # Concatenate the list of timeseries and write to file
     pd.concat(pd_list).to_csv(
-        f"{path}/forecasts.csv",
+        f"{path}forecasts.csv",
         mode="w" if fold_num == 1 else "a",
         header=True if fold_num == 1 else False
     )
 
     
     metrics.to_csv(
-        f"{path}/metrics.csv",
+        f"{path}metrics.csv",
         mode="w" if fold_num == 1 else "a",
         header=True if fold_num == 1 else False
     )

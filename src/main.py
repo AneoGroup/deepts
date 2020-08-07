@@ -1,5 +1,6 @@
 import argparse
 import os
+import random
 import shutil
 import yaml
 
@@ -9,7 +10,7 @@ import numpy as np
 
 from cross_val import nested_cross_validation
 from dataloader import DataLoader
-from model_utils import create_model, evaluate_model
+from model_utils import create_model, evaluate_model, evaluate_n_times
 from result_utils import plot_forecast, write_results
 
 
@@ -18,9 +19,19 @@ parser.add_argument("--config",
                     required=True,
                     help="Path to a experiment config file"
                     )
+parser.add_argument("--num-tests",
+                    type=int,
+                    default=0,
+                    required=False,
+                    help="The number of times to test the model using diferent seeds")
+parser.add_argument("--test-seed",
+                    type=int,
+                    default=0,
+                    required=False,
+                    help="If set, this is used as the initial seed to sample other seeds for testing")
 
 
-def run_experiment(exp_path: str, config: dict):
+def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: int = 0):
     dataloader = DataLoader(
         config["dataset_name"],
         config["dataset_path"],
@@ -56,8 +67,21 @@ def run_experiment(exp_path: str, config: dict):
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
         # Save results
-        write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], exp_path)
+        if not os.path.exists(f"{exp_path}/samples"):
+            os.mkdir(f"{exp_path}/samples")
+
+        write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], f"{exp_path}/")
         plot_forecast(targets, forecasts, f"{exp_path}/plot.png")
+
+        # Evaluate the model multiple times with different seeds
+        evaluate_n_times(
+            predictor,
+            dataloader,
+            config["hyperparams"]["prediction_length"],
+            num_tests,
+            test_seed,
+            exp_path
+        )
 
 
 if __name__ == "__main__":
@@ -71,4 +95,4 @@ if __name__ == "__main__":
         mx.random.seed(config["random_seed"])
 
     exp_path = config["path"]
-    run_experiment(exp_path, config)
+    run_experiment(exp_path, config, args["num_tests"], args["test_seed"])

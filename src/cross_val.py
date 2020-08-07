@@ -65,5 +65,5 @@ def nested_cross_validation(exp_path: str,
         forecasts, targets, metrics = evaluate_model(predictor, test_data, 100)
 
         # Save results
-        write_results(forecasts, targets, metrics, prediction_length, exp_path, j + 1)
+        write_results(forecasts, targets, metrics, prediction_length, f"{exp_path}/", j + 1)
         plot_forecast(targets, forecasts, f"{exp_path}/fold{j + 1}.png")
