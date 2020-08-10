@@ -19,6 +19,7 @@ from gluonts.model.wavenet import WaveNetEstimator
 from gluonts.trainer import Trainer
 
 from dataloader import DataLoader
+from lstm.lstm_extimator import DeepARLSTMEstimator
 from result_utils import write_results
 
 
@@ -26,6 +27,7 @@ model_dict = {
     "deep_ar": DeepAREstimator,
     "deep_factor": DeepFactorEstimator,
     "deepstate": DeepStateEstimator,
+    "lstm": DeepARLSTMEstimator,
     "n_beats": NBEATSEstimator,
     "mqcnn": MQCNNEstimator,
     "mqrnn": MQRNNEstimator,
