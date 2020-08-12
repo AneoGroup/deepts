@@ -16,6 +16,7 @@ epochs =  experiment_config["epochs"]
 learning_rates = experiment_config["learning_rates"]
 seed = experiment_config["random_seed"]
 num_repetitions = experiment_config["num_repetitions"]
+track_training = experiment_config["track_training"]
 
 # Set increment_seed = True if we want repetitions with different seeds
 increment_seed = False
@@ -30,6 +31,9 @@ for model in models:
         for epoch in epochs:
             for lr in learning_rates:
                 for i in range(num_repetitions):
+                    # The path for the current repetition
+                    path = f"./experiments/{model}/{dataset}/{exp_num}{computer_id}/repetition{i}"
+
                     # Create a config with the current parameters
                     config_dict = {
                         "model_name": model,
@@ -46,12 +50,10 @@ for model in models:
                         },
                         "random_seed": seed,
                         "cross_val": False,
-                        "dataset_path": None
+                        "dataset_path": None,
+                        "track_training": track_training,
+                        "path": path
                     }
-
-                    # The path for the current repetition
-                    path = f"./experiments/{model}/{dataset}/{exp_num}{computer_id}/repetition{i}"
-                    config_dict["path"] = path
 
                     # Ask before overwriting old experiments
                     if os.path.exists(path):

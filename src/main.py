@@ -12,6 +12,7 @@ from cross_val import nested_cross_validation
 from dataloader import DataLoader
 from model_utils import create_model, evaluate_model, evaluate_n_times
 from result_utils import plot_forecast, write_results
+from trainer import TrackingTrainer
 
 
 parser = argparse.ArgumentParser()
@@ -55,7 +56,14 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
     else:
         # Run a single experiment
         # Define a trainer
-        trainer = Trainer(**config["trainer"])
+        if not config.get("track_training"):
+            trainer = Trainer(**config["trainer"])
+        else:
+            trainer = TrackingTrainer(
+                config["model_name"],
+                config["dataset_name"],
+                config["random_seed"],
+                **config["trainer"])
 
         # Create, train and test the model
         estimator = create_model(
