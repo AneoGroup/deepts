@@ -76,26 +76,27 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
         # Save weights and delete unnecessary file
-        if config.get(["save_weights"]) == True:
+        if config.get("save_weights"):
             predictor.serialize_prediction_net(pathlib.Path(exp_path))
             os.remove(f"{exp_path}/prediction_net-network.json")
         
-        # Save results
-        if not os.path.exists(f"{exp_path}/samples"):
-            os.mkdir(f"{exp_path}/samples")
-
         write_results(forecasts, targets, metrics, config["hyperparams"]["prediction_length"], f"{exp_path}/")
         plot_forecast(targets, forecasts, f"{exp_path}/plot.png")
 
-        # Evaluate the model multiple times with different seeds
-        evaluate_n_times(
-            predictor,
-            dataloader,
-            config["hyperparams"]["prediction_length"],
-            num_tests,
-            test_seed,
-            exp_path
-        )
+        if num_tests > 0:
+            # Create a folder for aditional tests
+            if not os.path.exists(f"{exp_path}/samples"):
+                os.mkdir(f"{exp_path}/samples")
+
+            # Evaluate the model multiple times with different seeds
+            evaluate_n_times(
+                predictor,
+                dataloader,
+                config["hyperparams"]["prediction_length"],
+                num_tests,
+                test_seed,
+                exp_path
+            )
 
 
 if __name__ == "__main__":
