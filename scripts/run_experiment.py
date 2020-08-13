@@ -17,6 +17,7 @@ learning_rates = experiment_config["learning_rates"]
 seed = experiment_config["random_seed"]
 num_repetitions = experiment_config["num_repetitions"]
 track_training = experiment_config["track_training"]
+save_weights = experiment_config["save_weights"]
 
 # Set increment_seed = True if we want repetitions with different seeds
 increment_seed = False
@@ -52,6 +53,7 @@ for model in models:
                         "cross_val": False,
                         "dataset_path": None,
                         "track_training": track_training,
+                        "save_weights": save_weights,
                         "path": path
                     }
 

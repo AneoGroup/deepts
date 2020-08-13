@@ -17,3 +17,6 @@ random_seed: increment
 
 # Track vaious metrics of the neural network in tensorboard (i.e. loss, gradients, etc.)
 track_training: False
+
+# Save weights after training
+save_weights: False

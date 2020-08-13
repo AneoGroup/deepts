@@ -1,5 +1,6 @@
 import argparse
 import os
+import pathlib
 import random
 import shutil
 import yaml
@@ -74,6 +75,11 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
         predictor = estimator.train(dataloader.train_data)
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
+        # Save weights and delete unnecessary file
+        if config.get(["save_weights"]) == True:
+            predictor.serialize_prediction_net(pathlib.Path(exp_path))
+            os.remove(f"{exp_path}/prediction_net-network.json")
+        
         # Save results
         if not os.path.exists(f"{exp_path}/samples"):
             os.mkdir(f"{exp_path}/samples")
