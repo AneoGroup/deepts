@@ -19,7 +19,7 @@ from gluonts.model.wavenet import WaveNetEstimator
 from gluonts.trainer import Trainer
 
 from dataloader import DataLoader
-from lstm.lstm_extimator import DeepARLSTMEstimator
+from lstm.lstm_estimator import DeepARLSTMEstimator
 from result_utils import write_results
 
 
