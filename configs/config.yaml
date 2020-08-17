@@ -3,14 +3,20 @@ computer_id: B
 experiment_id: 1
 
 # Lists of parameters to use when running an experiment
-models: [lstm]
-datasets: [electricity]
-epochs: [20]
-learning_rates: [0.001]
-context: gpu  # decide if running experiment on cpu or gpu
+model: wavenet
+dataset: electricity
+
+model_args:
+  freq: null
+  prediction_length: null
+
+trainer_args:
+  epochs: 20
+  learning_rate: 0.001
+  ctx: gpu
 
 # Number of times to repeat every combination of parameters
-num_repetitions: 100
+num_repetitions: 1
 
 # Sets the random seed. Use null to not set. Use "increment" when doing repetitions with different random seeds
 random_seed: increment
