@@ -3,7 +3,7 @@ computer_id: B
 experiment_id: 1
 
 # Lists of parameters to use when running an experiment
-model: wavenet
+model: deep_ar
 dataset: electricity
 
 model_args:
@@ -20,6 +20,8 @@ num_repetitions: 1
 
 # Sets the random seed. Use null to not set. Use "increment" when doing repetitions with different random seeds
 random_seed: increment
+
+use_val_data: False
 
 # Track vaious metrics of the neural network in tensorboard (i.e. loss, gradients, etc.)
 track_training: False
