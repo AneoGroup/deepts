@@ -7,12 +7,12 @@ from gluonts.dataset.repository.datasets import dataset_recipes, get_dataset
 class DataLoader:
     def __init__(self,
                  dataset_name: str,
-                 dataset_path: str = None,
+                 use_val_data: bool = False,
                  freq: str = None,
                  prediction_length: int = None) -> None:
 
         self.dataset_name = dataset_name
-        self.dataset_path = dataset_path
+        self.use_val_data = use_val_data
         self.freq = freq
         self.prediction_length = prediction_length
 
@@ -29,10 +29,19 @@ class DataLoader:
         else:
             raise ValueError(f"Invalid dataset_name: {self.dataset_name}")
 
-    def convert_to_ListDataset(self, dataset: TrainDatasets) -> (ListDataset, ListDataset):
+    def convert_to_ListDataset(self, dataset: TrainDatasets):
         self.train_data = ListDataset(list(iter(dataset.train)), freq=self.freq)
         self.test_data = ListDataset(list(iter(dataset.test)), freq=self.freq)
-        return self.train_data, self.test_data
+
+        # If we want to use validation data, we use the first prediction window in the test data for
+        # every timeseries in the data
+        if self.use_val_data:
+            self.val_data = ListDataset(
+                list(self.test_data.list_data[:len(self.train_data)]), freq=dataset.metadata.freq
+            )
+            self.test_data = ListDataset(
+                list(self.test_data.list_data[len(self.train_data):]), freq=dataset.metadata.freq
+            )
 
     def generate_data(self) -> (ListDataset, ListDataset):
         N = 100

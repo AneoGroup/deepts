@@ -17,6 +17,7 @@ trainer_args = experiment_config["trainer_args"]
 
 seed = experiment_config["random_seed"]
 num_repetitions = experiment_config["num_repetitions"]
+use_val_data = experiment_config["use_val_data"]
 track_training = experiment_config["track_training"]
 save_weights = experiment_config["save_weights"]
 
@@ -39,7 +40,7 @@ for i in range(num_repetitions):
         "trainer": trainer_args,
         "random_seed": seed,
         "cross_val": False,
-        "dataset_path": None,
+        "use_val_data": use_val_data,
         "track_training": track_training,
         "save_weights": save_weights,
         "path": path

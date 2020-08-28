@@ -251,7 +251,7 @@ class TrackingTrainer(Trainer):
 
                     epoch_loss = loop(epoch_no, train_iter)
                     if is_validation_available:
-                        epoch_loss = loop(
+                        val_epoch_loss = loop(
                             epoch_no, validation_iter, is_training=False
                         )
 
@@ -291,6 +291,13 @@ class TrackingTrainer(Trainer):
                         value=loss_value(epoch_loss),
                         global_step=epoch_no
                     )
+                    
+                    if is_validation_available:
+                        sw.add_scalar(
+                            tag="validation_loss",
+                            value=loss_value(val_epoch_loss),
+                            global_step=epoch_no
+                        )
 
                     # track the learning rate
                     sw.add_scalar(

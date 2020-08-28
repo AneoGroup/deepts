@@ -1,14 +1,23 @@
 import os
+import re
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 
-def load_data(path):
+def load_data(path, num_folders=None):
     # Loads all the repetitions of a experiment given by the path argument.
-    repetitions = []
-    for folder in sorted(os.listdir(path)):
-        repetitions.append(pd.read_csv(f"{path}/{folder}/metrics.csv", index_col=0).rename_axis("index"))
+    folders = os.listdir(path)
+
+    if num_folders is None:
+        repetitions = [0 for i in range(len(folders))]
+    else:
+        repetitions = [i for i in range(num_folders)]
+    
+    for folder in folders:
+        folder_num = int(re.split("(\d+)", folder)[1])
+        repetitions[folder_num] = pd.read_csv(f"{path}/{folder}/metrics.csv", index_col=0).rename_axis("index")
     
     return repetitions
 
@@ -70,39 +79,31 @@ def count_repetition_frequency(metrics):
     return freqs
 
 
-def report_experiment_results(experiment):
-    mse = find_best_and_worst_n(experiment, "MSE", 10)
-    mase = find_best_and_worst_n(experiment, "MASE", 10)
-    mape = find_best_and_worst_n(experiment, "MAPE", 10)
+def report_experiment_results(experiment, metrics=None):
+    if metrics is None:
+        metrics = ["MSE", "MASE", "MAPE"]
+    
+    all_best_and_worst = []
+    for metric in metrics:
+        best_and_worst = find_best_and_worst_n(experiment, metric, 10)
+        all_best_and_worst.append(best_and_worst)
 
-    worst = count_repetition_frequency([mse[0], mase[0], mape[0]])
-    best = count_repetition_frequency([mse[1], mase[1], mape[1]])
+        print(f"({metric}) Highest value: {best_and_worst[0][:, 1].max(axis=0)}")
+        print(f"({metric}) Lowest value:  {best_and_worst[1][:, 1].min(axis=0)}")
+        print(f"({metric}) Difference between highest and lowest: {best_and_worst[0][:, 1].max(axis=0) - best_and_worst[1][:, 1].min(axis=0)}")
+        print(f"({metric}) Difference between average error, 10 highest - 10 lowest: {best_and_worst[0][:, 1].mean(axis=0) - best_and_worst[1][:, 1].mean(axis=0)}")
+        print()
 
+    worst = count_repetition_frequency([metric[0] for metric in all_best_and_worst])
+    best = count_repetition_frequency([metric[1] for metric in all_best_and_worst])
     print(f"Most occuring repetitions worst 10 (repetition, frequency): {worst}")
     print(f"Most occuring repetitions best 10 (repetition, frequency): {best}")
     print(f"Total number of different repetitions present across metrics (highest): {len(worst)}")
     print(f"Total number of different repetitions present across metrics (lowest): {len(best)}")
     print()
 
-    print(f"(MSE) Highest value: {mse[0][:, 1].max(axis=0)}")
-    print(f"(MSE) Lowest value:  {mse[1][:, 1].min(axis=0)}")
-    print(f"(MSE) Difference between highest and lowest: {mse[0][:, 1].max(axis=0) - mse[1][:, 1].min(axis=0)}")
-    print(f"(MSE) Difference between average error, 10 highest - 10 lowest: {mse[0][:, 1].mean(axis=0) - mse[1][:, 1].mean(axis=0)}")
-    print()
 
-    print(f"(MASE) Highest value: {mase[0][:, 1].max(axis=0)}")
-    print(f"(MASE) Lowest value:  {mase[1][:, 1].min(axis=0)}")
-    print(f"(MASE) Difference between highest and lowest error: {mase[0][:, 1].max(axis=0) - mase[1][:, 1].min(axis=0)}")
-    print(f"(MASE) Difference between the average error, 10 highest - 10 lowest: {mase[0][:, 1].mean(axis=0) - mase[1][:, 1].mean(axis=0)}")
-    print()
-
-    print(f"(MAPE) Highest value: {mape[0][:, 1].max(axis=0)}")
-    print(f"(MAPE) Lowest value:  {mape[1][:, 1].min(axis=0)}")
-    print(f"(MAPE) Difference between highest and lowest: {mape[0][:, 1].max(axis=0) - mape[1][:, 1].min(axis=0)}")
-    print(f"(MAPE) Difference between average error, 10 highest - 10 lowest: {mape[0][:, 1].mean(axis=0) - mape[1][:, 1].mean(axis=0)}")
-
-
-def calculate_timeseries_means(repetitions, metrics):
+def calculate_timeseries_means(repetitions, metrics, num_timeseries):
     # Make a np array with shape (num repetitions, num timeseries, horizon length, num metrics).
     # Then we calculate the mean of each metric over the timeseries, resulting in an array 
     # with shape (num repetitions, num timeseries, num metrics).
@@ -111,8 +112,10 @@ def calculate_timeseries_means(repetitions, metrics):
         df.sort_values(by=["item_id", "index"], inplace=True)
         metric_cols.append(df[metrics])
 
+    num_windows = int(len(repetitions[0]) / num_timeseries)
+    
     array = pd.concat(metric_cols).values
-    array = array.reshape(len(metric_cols), 321, 7, len(metrics))
+    array = array.reshape(len(metric_cols), num_timeseries, num_windows, len(metrics))
     
     return np.mean(array, axis=2)
 
@@ -129,3 +132,19 @@ def count_repetitions_among_top_n(indexes, counts, num_repetitions):
         count_per_repetition[idx] = count
     
     return count_per_repetition
+
+
+def plot_histogram(indexes, counts, num_bins, metrics, title):
+    bin_counts = count_repetitions_among_top_n(indexes, counts, num_bins)
+    plt.hist(
+        [i for i in range(num_bins)],
+        bins=num_bins,
+        range=(0, num_bins),
+        weights=bin_counts
+    )
+    plt.title(title)
+    plt.xlabel("Repetition ID")
+    plt.ylabel("Frequency")
+    plt.show()
+
+    return bin_counts

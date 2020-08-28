@@ -1,8 +1,6 @@
 import argparse
 import os
 import pathlib
-import random
-import shutil
 import yaml
 
 from gluonts.trainer import Trainer
@@ -36,7 +34,7 @@ parser.add_argument("--test-seed",
 def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: int = 0):
     dataloader = DataLoader(
         config["dataset_name"],
-        config["dataset_path"],
+        config["use_val_data"],
         config["hyperparams"]["freq"],
         config["hyperparams"]["prediction_length"]
     )
@@ -72,7 +70,10 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
             trainer,
             **config["hyperparams"]
         )
-        predictor = estimator.train(dataloader.train_data)
+        predictor = estimator.train(
+            dataloader.train_data,
+            validation_data=dataloader.val_data if config["use_val_data"] else None
+        )
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
         # Save weights and delete unnecessary file
