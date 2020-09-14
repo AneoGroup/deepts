@@ -2,18 +2,22 @@
 computer_id: B
 experiment_id: 1
 
-# Lists of parameters to use when running an experiment
+# Model and data-set name
+# Valid model names are: deep_ar, deep_factor, deepstate, lstm, n_beats, mqcnn, mqrnn, rnn2qr, simple_feed_forward, wavenet
+# Any GluonTS data-set name is valid, use "generate" to create random noise.
 model: deep_ar
 dataset: electricity
 
+# Arguments passed to the GluonTS model. freq and prediction_length as null causes the dataset defaults to be used.
 model_args:
   freq: null
   prediction_length: null
 
+# Arguments passed to the GluonTS trainer
 trainer_args:
+  ctx: gpu
   epochs: 20
   learning_rate: 0.001
-  ctx: gpu
 
 # Number of times to repeat every combination of parameters
 num_repetitions: 1
@@ -21,9 +25,10 @@ num_repetitions: 1
 # Sets the random seed. Use null to not set. Use "increment" when doing repetitions with different random seeds
 random_seed: increment
 
+# Use validaiton data during training or not
 use_val_data: False
 
-# Track vaious metrics of the neural network in tensorboard (i.e. loss, gradients, etc.)
+# Track vaious metrics of the neural network with MXBoard (i.e. loss, gradients, etc.)
 track_training: False
 
 # Save weights after training
