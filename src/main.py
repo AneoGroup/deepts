@@ -74,6 +74,13 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
             dataloader.train_data,
             validation_data=dataloader.val_data if config["use_val_data"] else None
         )
+
+        # if config["trainer"]["ctx"] == "gpu" and config["model_name"] == "deepstate":
+        #     temp_dir = pathlib.Path(f"temps/{config['dataset_name']}{config['random_seed']}")
+        #     os.mkdir(temp_dir)
+        #     predictor.serialize(temp_dir)
+        #     predictor = predictor.deserialize(temp_dir, ctx=mx.context.cpu())
+
         forecasts, targets, metrics = evaluate_model(predictor, dataloader.test_data, 100)
 
         # Save weights and delete unnecessary file
