@@ -119,7 +119,6 @@ class TrackingTrainer(Trainer):
             flush_secs=10,
             verbose=False
         )
-        param_names = None
 
         with tempfile.TemporaryDirectory(
             prefix="gluonts-trainer-temp-"
@@ -305,60 +304,6 @@ class TrackingTrainer(Trainer):
                         value=trainer.optimizer.learning_rate,
                         global_step=epoch_no
                     )
-
-                    if param_names is None:
-                        param_names = [i for i in net.collect_params()]
-
-                    grads = [i.grad().asnumpy() for i in net.collect_params().values()]
-                    weights = [i.data().asnumpy() for i in net.collect_params().values()]
-
-                    for i, name in enumerate(param_names):
-                        # add gradients as a histogram
-                        sw.add_histogram(
-                            tag=name + "_grad",
-                            values=grads[i],
-                            global_step=epoch_no,
-                            bins=1000
-                        )
-
-                        # add gradients mean of abs as a scalar
-                        sw.add_scalar(
-                            tag=name + "_grad_mean_abs",
-                            value=np.mean(np.abs(grads[i])),
-                            global_step=epoch_no
-                        )
-
-                        # add gradients std as scalar
-                        sw.add_scalar(
-                            tag=name + "_grad_std",
-                            value=np.std(grads[i]),
-                            global_step=epoch_no
-                        )
-
-                        # add weights as histogram
-                        sw.add_histogram(
-                            tag=name,
-                            values=weights[i],
-                            global_step=epoch_no,
-                            bins=1000
-                        )
-
-                        # add weights mean of abs as a scalar
-                        sw.add_scalar(
-                            tag=name + "_mean_abs",
-                            value=np.mean(np.abs(weights[i])),
-                            global_step=epoch_no
-                        )
-
-                        # add weights std as scalar
-                        sw.add_scalar(
-                            tag=name + "_std",
-                            value=np.std(weights[i]),
-                            global_step=epoch_no
-                        )
-
-                # add computational graph to tensorboard
-                # sw.add_graph(net)
 
                 logger.info(
                     f"Loading parameters from best epoch "

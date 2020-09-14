@@ -23,8 +23,7 @@ def write_results(forecasts: list,
                   targets: list,
                   metrics: pd.DataFrame,
                   prediction_length: int,
-                  path: str,
-                  fold_num: int = 1) -> None:
+                  path: str) -> None:
     # Store all timeseries in a list
     pd_list = []
     for idx in range(len(forecasts)):
@@ -42,26 +41,16 @@ def write_results(forecasts: list,
         # Join the targets and forecasts
         df = pd.concat([target, forecasts_df], axis=1)
 
-        # Create a multiindex, with fold number and timestamp
+        # Create a multiindex with timeseries number and timestamp
         df = pd.DataFrame(
             data=df.values,
             index=pd.MultiIndex.from_product(
-                [[fold_num],[idx], target.index], names=["fold_num", "series_number", "timestamp"]
+                [[idx], target.index], names=["series_number", "timestamp"]
             ),
             columns=[*target.columns, *forecasts_df.columns]
         )
         pd_list.append(df)
     
     # Concatenate the list of timeseries and write to file
-    pd.concat(pd_list).to_csv(
-        f"{path}forecasts.csv",
-        mode="w" if fold_num == 1 else "a",
-        header=True if fold_num == 1 else False
-    )
-
-    
-    metrics.to_csv(
-        f"{path}metrics.csv",
-        mode="w" if fold_num == 1 else "a",
-        header=True if fold_num == 1 else False
-    )
+    pd.concat(pd_list).to_csv(f"{path}forecasts.csv")
+    metrics.to_csv(f"{path}metrics.csv")

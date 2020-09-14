@@ -21,13 +21,13 @@ use_val_data = experiment_config["use_val_data"]
 track_training = experiment_config["track_training"]
 save_weights = experiment_config["save_weights"]
 
-# Set increment_seed = True if we want repetitions with different seeds
+# Set increment_seed = True if we want to change the seed each repetition of the experiment
 increment_seed = False
 if seed == "increment":
     increment_seed = True
     seed = 0
 
-# Loop over parameters
+# Loop over seeds
 for i in range(num_repetitions):
     # The path for the current repetition
     path = f"./experiments/{model}/{dataset}/{experiment_id}{computer_id}/repetition{i}"

@@ -1,4 +1,0 @@
-# Ignore everything in this directory so we don't push our data
-*
-# Except this file
-!.gitignore
