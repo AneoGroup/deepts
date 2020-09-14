@@ -84,23 +84,34 @@ def report_experiment_results(experiment, metrics=None):
         metrics = ["MSE", "MASE", "MAPE"]
     
     all_best_and_worst = []
+    # For every metric, calculate mean and variance for all seeds, and for the 10 best and worst ones
     for metric in metrics:
-        best_and_worst = find_best_and_worst_n(experiment, metric, 10)
-        all_best_and_worst.append(best_and_worst)
+        worst10, best10 = find_best_and_worst_n(experiment, metric, 10)
+        all_best_and_worst.append([best10, worst10])
 
-        print(f"({metric}) Highest value: {best_and_worst[0][:, 1].max(axis=0)}")
-        print(f"({metric}) Lowest value:  {best_and_worst[1][:, 1].min(axis=0)}")
-        print(f"({metric}) Difference between highest and lowest: {best_and_worst[0][:, 1].max(axis=0) - best_and_worst[1][:, 1].min(axis=0)}")
-        print(f"({metric}) Difference between average error, 10 highest - 10 lowest: {best_and_worst[0][:, 1].mean(axis=0) - best_and_worst[1][:, 1].mean(axis=0)}")
+        metric_values = np.empty((len(experiment, )))
+        for i, repetition in enumerate(experiment):
+            metric_values[i] = repetition[metric].mean()
+
+        print(f"{metric} SCORES")
+        print("\tAll seeds:")
+        print(f"\t\tMean: {metric_values.mean()}")
+        print(f"\t\tStd: {metric_values.std()}")
+        print(f"\t\tVariance: {np.sqrt(metric_values.std())}")
         print()
 
-    worst = count_repetition_frequency([metric[0] for metric in all_best_and_worst])
-    best = count_repetition_frequency([metric[1] for metric in all_best_and_worst])
-    print(f"Most occuring repetitions worst 10 (repetition, frequency): {worst}")
-    print(f"Most occuring repetitions best 10 (repetition, frequency): {best}")
-    print(f"Total number of different repetitions present across metrics (highest): {len(worst)}")
-    print(f"Total number of different repetitions present across metrics (lowest): {len(best)}")
-    print()
+        print("\tWorst seeds:")
+        print(f"\t\tMean: {worst10[:, 1].mean(axis=0)}")
+        print(f"\t\tStd: {worst10[:, 1].std(axis=0)}")
+        print(f"\t\tVariance: {np.sqrt(worst10[:, 1].std(axis=0))}")
+        print()
+
+        print("\tBest seeds:")
+        print(f"\t\tMean: {best10[:, 1].mean(axis=0)}")
+        print(f"\t\tStd: {best10[:, 1].std(axis=0)}")
+        print(f"\t\tVariance: {np.sqrt(best10[:, 1].std(axis=0))}")
+        print()
+        print()
 
 
 def calculate_timeseries_means(repetitions, metrics, num_timeseries):
