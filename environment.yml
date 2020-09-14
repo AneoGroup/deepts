@@ -117,16 +117,43 @@ dependencies:
   - zipp=3.1.0=py_0
   - zlib=1.2.11=h7b6447c_3
   - pip:
+    - absl-py==0.9.0
+    - astunparse==1.6.3
+    - cachetools==4.1.1
     - chardet==3.0.4
+    - gast==0.3.3
     - gluonts==0.5.0
+    - google-auth==1.20.1
+    - google-auth-oauthlib==0.4.1
+    - google-pasta==0.2.0
+    - grpcio==1.31.0
+    - h5py==2.10.0
     - holidays==0.9.12
     - idna==2.10
+    - keras-preprocessing==1.1.2
+    - markdown==3.2.2
+    - mxboard==0.1.0
     - mxnet-cu101==1.6.0
+    - oauthlib==3.1.0
+    - opt-einsum==3.3.0
+    - pillow==7.2.0
+    - protobuf==3.12.4
+    - pyasn1==0.4.8
+    - pyasn1-modules==0.2.8
     - pydantic==1.5.1
     - python-graphviz==0.8.4
     - requests==2.24.0
+    - requests-oauthlib==1.3.0
+    - rsa==4.6
+    - scipy==1.4.1
+    - tensorboard==2.3.0
+    - tensorboard-plugin-wit==1.7.0
+    - tensorflow==2.3.0
+    - tensorflow-estimator==2.3.0
+    - termcolor==1.1.0
     - tqdm==4.47.0
     - ujson==1.35
     - urllib3==1.25.9
+    - werkzeug==1.0.1
 prefix: /anaconda/envs/deepts
 
