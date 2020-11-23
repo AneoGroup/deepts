@@ -278,10 +278,13 @@ class TrackingTrainer(Trainer):
                     )
 
                     epoch_loss = loop(epoch_no, train_iter)
+                    train_loss = loss_value(epoch_loss)
                     if is_validation_available:
-                        val_epoch_loss = loop(
+                        epoch_loss = loop(
                             epoch_no, validation_iter, is_training=False
                         )
+                        val_loss = loss_value(epoch_loss)
+
 
                     should_continue = lr_scheduler.step(loss_value(epoch_loss))
                     if not should_continue:
@@ -316,14 +319,14 @@ class TrackingTrainer(Trainer):
                     # add loss to tensorboard
                     sw.add_scalar(
                         tag="training_loss",
-                        value=loss_value(epoch_loss),
+                        value=train_loss,
                         global_step=epoch_no
                     )
                     
                     if is_validation_available:
                         sw.add_scalar(
                             tag="validation_loss",
-                            value=loss_value(val_epoch_loss),
+                            value=val_loss,
                             global_step=epoch_no
                         )
 
