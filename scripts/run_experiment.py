@@ -15,17 +15,11 @@ dataset = experiment_config["dataset"]
 model_args = experiment_config["model_args"]
 trainer_args = experiment_config["trainer_args"]
 
-seed = experiment_config["random_seed"]
 num_repetitions = experiment_config["num_repetitions"]
+increment = experiment_config["increment"]
 use_val_data = experiment_config["use_val_data"]
 track_training = experiment_config["track_training"]
 save_weights = experiment_config["save_weights"]
-
-# Set increment_seed = True if we want to change the seed each repetition of the experiment
-increment_seed = False
-if seed == "increment":
-    increment_seed = True
-    seed = 0
 
 # Loop over seeds
 for i in range(num_repetitions):
@@ -38,7 +32,7 @@ for i in range(num_repetitions):
         "dataset_name": dataset,
         "hyperparams": model_args,
         "trainer": trainer_args,
-        "random_seed": seed,
+        "increment": increment,
         "cross_val": False,
         "use_val_data": use_val_data,
         "track_training": track_training,
@@ -49,7 +43,7 @@ for i in range(num_repetitions):
     # Ask before overwriting old experiments
     if os.path.exists(path):
         overwrite = input(f"A folder at this path ({path}) already exists. "
-                            "Do you want to overwrite? [y/n] ")
+                          "Do you want to overwrite? [y/n] ")
         if overwrite == "n":
             exit(0)
 
@@ -57,11 +51,16 @@ for i in range(num_repetitions):
         os.makedirs(path)
 
     with open(path + "/config.yaml", "w") as f:
-            yaml.dump(config_dict, f)
-    
+        yaml.dump(config_dict, f)
+
     # Run experiment
     subprocess.run(["python", "src/main.py",
                     "--config", path + "/config.yaml"])
 
-    if increment_seed:
-        seed += 1
+    if increment == "weights":
+        trainer_args["weight_seed"] += 1
+    elif increment == "batch":
+        trainer_args["batch_seed"] += 1
+    elif increment == "both":
+        trainer_args["weight_seed"] += 1
+        trainer_args["batch_seed"] += 1

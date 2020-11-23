@@ -72,7 +72,8 @@ class TrackingTrainer(Trainer):
     def __init__(self,
                  model_name: str,
                  dataset_name: str,
-                 initial_seed: str,
+                 weight_seed: int = None,
+                 batch_seed: int = None,
                  ctx: Optional[mx.Context] = None,
                  epochs: int = 100,
                  batch_size: int = 32,
@@ -102,12 +103,14 @@ class TrackingTrainer(Trainer):
         )
         self.model_name = model_name
         self.dataset_name = dataset_name
-        self.initial_seed = initial_seed
+        self.weight_seed = weight_seed
+        self.batch_seed = batch_seed
 
     def __call__(self,
                  net: nn.HybridBlock,
                  input_names: List[str],
                  train_iter: TrainDataLoader,
+                 initialize: bool = False,
                  validation_iter: Optional[ValidationDataLoader] = None,
                  ) -> None:
         is_validation_available = validation_iter is not None
@@ -115,7 +118,7 @@ class TrackingTrainer(Trainer):
 
         current_time = datetime.now().strftime("%Y-%m-%d")
         sw = SummaryWriter(
-            logdir=f"./logs/{self.model_name}/{self.dataset_name}/seed{self.initial_seed}_{current_time}",
+            logdir=f"./logs/{self.model_name}/{self.dataset_name}/weightseed{self.weight_seed}batchseed{self.batch_seed}_{current_time}",
             flush_secs=10,
             verbose=False
         )
@@ -237,6 +240,32 @@ class TrackingTrainer(Trainer):
                         lv,
                     )
                     return epoch_loss
+
+                # Set the seed for the intial batch sampling
+                if self.batch_seed is not None:
+                    mx.random.seed(self.batch_seed)
+                    np.random.seed(self.batch_seed)
+
+                # Initialize the weights
+                if self.weight_seed is not None:
+                    data_entry = next(iter(train_iter))
+                    inputs = [data_entry[k] for k in input_names]
+                    _ = net(*inputs)
+
+                    mx.random.seed(self.weight_seed)
+                    np.random.seed(self.weight_seed)
+                    net.initialize(ctx=self.ctx, init=self.init, force_reinit=True)
+                else:
+                    mx.random.seed(int(time.time()))
+                    np.random.seed(int(time.time()))
+
+                # Set the seed for batch sampling
+                if self.batch_seed is not None:
+                    mx.random.seed(self.batch_seed)
+                    np.random.seed(self.batch_seed)
+                else:
+                    mx.random.seed(int(time.time()))
+                    np.random.seed(int(time.time()))
 
                 for epoch_no in range(self.epochs):
                     if self.halt:

@@ -51,7 +51,6 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
         trainer = TrackingTrainer(
             config["model_name"],
             config["dataset_name"],
-            config["random_seed"],
             **config["trainer"])
 
     # Create, train and test the model
@@ -60,6 +59,7 @@ def run_experiment(exp_path: str, config: dict, num_tests: int = 0, test_seed: i
         trainer,
         **config["hyperparams"]
     )
+    
     predictor = estimator.train(
         dataloader.train_data,
         validation_data=dataloader.val_data if config["use_val_data"] else None
@@ -97,10 +97,6 @@ if __name__ == "__main__":
 
     with open(args['config'], "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-
-    if config["random_seed"] is not None:
-        np.random.seed(config["random_seed"])
-        mx.random.seed(config["random_seed"])
 
     exp_path = config["path"]
     run_experiment(exp_path, config, args["num_tests"], args["test_seed"])

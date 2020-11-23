@@ -1,6 +1,6 @@
 # IDs used to name folders
 computer_id: B
-experiment_id: 1
+experiment_id: 10
 
 # Model and data-set name
 # Valid model names are: deep_ar, deep_factor, deepstate, lstm, n_beats, mqcnn, mqrnn, rnn2qr, simple_feed_forward, wavenet
@@ -15,21 +15,23 @@ model_args:
 
 # Arguments passed to the GluonTS trainer
 trainer_args:
+  weight_seed: 0
+  batch_seed: 0
   ctx: gpu
   epochs: 20
   learning_rate: 0.001
 
 # Number of times to repeat every combination of parameters
-num_repetitions: 1
+num_repetitions: 100
 
-# Sets the random seed. Use null to not set. Use "increment" when doing repetitions with different random seeds
-random_seed: increment
+# Decide wich seeds to increment: "weights", "batch" or "both" 
+increment: weights
 
 # Use validaiton data during training or not
-use_val_data: False
+use_val_data: True
 
 # Track vaious metrics of the neural network with MXBoard (i.e. loss, gradients, etc.)
-track_training: False
+track_training: True
 
 # Save weights after training
-save_weights: False
+save_weights: True
