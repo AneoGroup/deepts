@@ -1,5 +1,5 @@
 # On Reporting Robust and Trustworthy Conclusions from Model Comparison Studies Involving Neural Networks and Randomness
-The code used to generate results used in the paper On Reporting Robust and Trustworthy Conclusions from Model Comparison Studies Involving Neural Networks and Randomness. The PDF of the paper can be found [here](On%20Reporting%20Robust%20and%20Trustworthy%20Conclusions%20from%20Model%20Comparison%20Studies%20Involving%20Neural%20Networks%20and%20Randomnes.pdf).
+The code used to generate results used in the paper On Reporting Robust and Trustworthy Conclusions from Model Comparison Studies Involving Neural Networks and Randomness. The PDF of the paper can be found [here](on_reporting_robust_and_trustworthy_conclusions_from_model_comparison_studies_involving_neural_networks_and_randomness.pdf).
 
 
 ## Running the code
